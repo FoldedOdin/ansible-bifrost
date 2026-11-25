@@ -46,14 +46,13 @@ jobs:
         include:
           - distro: fedora
             image: geerlingguy/docker-fedora41-ansible:latest
-            command: ""
+            command: /usr/lib/systemd/systemd
           - distro: ubuntu
             image: geerlingguy/docker-ubuntu2404-ansible:latest
-            command: ""
+            command: /lib/systemd/systemd
           - distro: archlinux
             image: archlinux:latest
             command: /usr/lib/systemd/systemd
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
