@@ -1,0 +1,15 @@
+# Encrypted local vault (vault.yml.example is tracked instead)
+inventories/vms/group_vars/workstations/vault.yml
+*vault_pass*
+
+# Ansible & Molecule runtime artifacts
+*.retry
+.molecule/
+.cache/
+__pycache__/
+*.pyc
+
+# Editor swap & backup files
+*.swp
+*.swo
+*~
