@@ -1,0 +1,42 @@
+---
+- name: Resolve workstation user home directory
+  ansible.builtin.user:
+    name: "{{ workstation_user }}"
+    state: present
+  register: target_user_info
+
+- name: Ensure XDG config directories exist
+  ansible.builtin.file:
+    path: "{{ target_user_info.home }}/.config/{{ item }}"
+    state: directory
+    owner: "{{ workstation_user }}"
+    group: "{{ workstation_user }}"
+    mode: "0755"
+  loop:
+    - hypr
+    - kitty
+
+- name: Render Hyprland configuration
+  ansible.builtin.template:
+    src: hyprland.conf.j2
+    dest: "{{ target_user_info.home }}/.config/hypr/hyprland.conf"
+    owner: "{{ workstation_user }}"
+    group: "{{ workstation_user }}"
+    mode: "0644"
+  notify: Reload Hyprland
+
+- name: Render Kitty terminal configuration
+  ansible.builtin.template:
+    src: kitty.conf.j2
+    dest: "{{ target_user_info.home }}/.config/kitty/kitty.conf"
+    owner: "{{ workstation_user }}"
+    group: "{{ workstation_user }}"
+    mode: "0644"
+
+- name: Render global Git configuration
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "{{ target_user_info.home }}/.gitconfig"
+    owner: "{{ workstation_user }}"
+    group: "{{ workstation_user }}"
+    mode: "0644"

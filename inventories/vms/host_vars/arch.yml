@@ -1,0 +1,4 @@
+---
+vm_hostname: "server-arch"
+extra_packages:
+  - base-devel

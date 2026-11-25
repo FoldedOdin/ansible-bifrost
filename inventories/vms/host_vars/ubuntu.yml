@@ -1,0 +1,4 @@
+---
+vm_hostname: "server"
+extra_packages:
+  - build-essential

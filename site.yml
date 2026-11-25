@@ -1,0 +1,31 @@
+---
+- name: Provision Distro-Agnostic Linux Workstations
+  hosts: workstations
+  become: true
+
+  pre_tasks:
+    - name: Load OS-family specific package mappings
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - "vars/{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+        - "vars/{{ ansible_facts['os_family'] }}.yml"
+      tags: always
+
+    - name: Update package cache (Debian/Ubuntu)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_facts['os_family'] == "Debian"
+      tags: always
+    - name: Update pacman package database (Arch Linux)
+      community.general.pacman:
+        update_cache: true
+      when: ansible_facts['os_family'] == "Archlinux"
+      tags: always
+  roles:
+    - role: base_packages
+      tags: [packages]
+    - role: dotfiles_templating
+      tags: [dotfiles]
+    - role: dev_toolchain
+      tags: [dev]

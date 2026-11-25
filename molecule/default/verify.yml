@@ -1,0 +1,48 @@
+---
+- name: Verify cross-distro workstation provisioning
+  hosts: workstations
+  become: true
+  tasks:
+    - name: Inspect workstation user state
+      ansible.builtin.user:
+        name: testuser
+        state: present
+      register: verified_user
+
+    - name: Assert default shell is zsh and user is in docker group
+      ansible.builtin.assert:
+        that:
+          - verified_user.shell == '/usr/bin/zsh'
+          - "'docker' in verified_user.groups"
+        fail_msg: "User shell or docker group assignment failed."
+
+    - name: Check templated dotfiles and toolchain binaries exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /home/testuser/.config/hypr/hyprland.conf
+        - /home/testuser/.config/kitty/kitty.conf
+        - /home/testuser/.gitconfig
+        - /home/testuser/.local/bin/uv
+        - /etc/docker/daemon.json
+      register: provisioned_files
+
+    - name: Assert all expected files exist
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+        fail_msg: "Expected file missing: {{ item.item }}"
+      loop: "{{ provisioned_files.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Read rendered Hyprland configuration
+      ansible.builtin.slurp:
+        src: /home/testuser/.config/hypr/hyprland.conf
+      register: hyprland_raw
+
+    - name: Assert VM software cursor flag was templated into Hyprland config
+      ansible.builtin.assert:
+        that:
+          - "'WLR_NO_HARDWARE_CURSORS,1' in (hyprland_raw.content | b64decode)"
+        fail_msg: "VM environment variables missing from rendered hyprland.conf"

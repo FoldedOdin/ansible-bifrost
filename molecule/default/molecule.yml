@@ -1,0 +1,43 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: workstation-instance
+    image: "${MOLECULE_DISTRO_IMAGE:-geerlingguy/docker-fedora41-ansible:latest}"
+    pre_build_image: true
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    command: ""
+    groups:
+      - workstations
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      roles_path: ../../roles
+      allow_world_readable_tmpfiles: true
+  inventory:
+    group_vars:
+      workstations:
+        workstation_user: testuser
+        is_virtual_machine: true
+        gpu_vendor: virtio
+        ci_headless_mode: true
+        git_user_name: "CI Test User"
+        git_user_email: "ci@example.com"
+  playbooks:
+    prepare: prepare.yml
+    converge: ../../site.yml
+    verify: verify.yml
+
+verifier:
+  name: ansible

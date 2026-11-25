@@ -1,0 +1,5 @@
+---
+vm_hostname: "fedora"
+enable_fedora_copr: true
+extra_packages:
+  - dnf-plugins-core

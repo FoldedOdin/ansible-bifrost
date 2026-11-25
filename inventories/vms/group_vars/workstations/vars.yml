@@ -1,0 +1,30 @@
+---
+workstation_user: "{{ ansible_user }}"
+ansible_become_pass: "{{ vault_become_pass | default(omit) }}"
+
+# Virtualized display defaults (SPICE / VirtIO / QXL virtual output)
+monitors:
+  - output: ""
+    resolution: "preferred"
+    position: "auto"
+    scale: "1"
+    primary: true
+
+# VM-specific environment variables (prevents cursor & software-rendering glitches in Wayland VMs)
+is_virtual_machine: true
+gpu_vendor: "virtio"
+enable_gaming_stack: false
+
+terminal_font: "JetBrainsMono Nerd Font"
+terminal_font_size: 11.0
+quickshell_bar_position: "top"
+
+dev_tools:
+  docker: true
+  neovim: true
+  vscode: true
+  python_uv: true
+  rust_toolchain: false
+
+git_user_name: "FoldedOdin"
+git_user_email: "{{ vault_git_email | default('FoldedOdin@users.noreply.github.com') }}"

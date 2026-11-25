@@ -1,0 +1,9 @@
+---
+- name: Reload Hyprland
+  ansible.builtin.command:
+    cmd: hyprctl reload
+  become: true
+  become_user: "{{ workstation_user }}"
+  changed_when: false
+  failed_when: false
+  when: not (ci_headless_mode | bool)

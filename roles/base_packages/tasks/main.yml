@@ -1,0 +1,61 @@
+---
+- name: Enable Fedora COPR repositories for Hyprland stack (Rawhide)
+  community.general.copr:
+    name: "{{ item }}"
+    chroot: fedora-rawhide-x86_64
+    state: enabled
+  loop: "{{ fedora_copr_repos }}"
+  when:
+    - ansible_facts['os_family'] == "RedHat"
+    - enable_fedora_copr | bool
+- name: Install core cross-distro CLI and Wayland packages
+  ansible.builtin.package:
+    name:
+      - git
+      - curl
+      - "{{ pkg_wget }}"
+      - unzip
+      - zsh
+      - tmux
+      - "{{ pkg_hyprland }}"
+      - "{{ pkg_waybar_or_bar }}"
+      - "{{ pkg_terminal }}"
+      - "{{ pkg_launcher }}"
+      - "{{ pkg_polkit_agent }}"
+      - "{{ pkg_fd }}"
+      - "{{ pkg_ripgrep }}"
+      - "{{ pkg_bat }}"
+      - "{{ pkg_eza }}"
+      - "{{ pkg_btop }}"
+      - "{{ pkg_neovim }}"
+      - "{{ pkg_build_tools }}"
+    state: present
+    update_cache: true
+- name: Install host-specific extra packages
+  ansible.builtin.package:
+    name: "{{ extra_packages }}"
+    state: present
+  when: extra_packages | length > 0
+
+- name: Create user-friendly symlink for fd on Debian/RedHat
+  ansible.builtin.file:
+    src: /usr/bin/fdfind
+    dest: /usr/local/bin/fd
+    state: link
+  when:
+    - ansible_facts['os_family'] in ["Debian", "RedHat"]
+    - not (ci_headless_mode | bool)
+  failed_when: false
+
+- name: Create user-friendly symlink for bat on Debian
+  ansible.builtin.file:
+    src: /usr/bin/batcat
+    dest: /usr/local/bin/bat
+    state: link
+  when: ansible_facts['os_family'] == "Debian"
+  failed_when: false
+
+- name: Set default shell to zsh for workstation user
+  ansible.builtin.user:
+    name: "{{ workstation_user }}"
+    shell: /usr/bin/zsh

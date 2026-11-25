@@ -1,0 +1,26 @@
+---
+# Core Wayland & Desktop Stack
+pkg_hyprland: hyprland
+pkg_waybar_or_bar: waybar
+pkg_terminal: kitty
+pkg_launcher: wofi
+pkg_polkit_agent: hyprpolkitagent
+
+# Modern CLI & Dev Utilities
+pkg_fd: fd-find
+pkg_ripgrep: ripgrep
+pkg_bat: bat
+pkg_eza: eza
+pkg_btop: btop
+pkg_neovim: neovim
+pkg_wget: wget2-wget
+# Container & Build Tooling
+pkg_docker_engine: moby-engine
+pkg_docker_compose: docker-compose
+pkg_build_tools: "@development-tools"
+
+# Service & Repo Metadata
+docker_service_name: docker
+enable_fedora_copr: true
+fedora_copr_repos:
+  - sdegler/hyprland

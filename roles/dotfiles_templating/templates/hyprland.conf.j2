@@ -1,0 +1,74 @@
+# {{ ansible_managed }}
+# Target Host: {{ inventory_hostname }} ({{ ansible_facts['distribution'] }})
+# --- Monitor Layout ---
+{% for m in monitors %}
+monitor={{ m.output }},{{ m.resolution }},{{ m.position }},{{ m.scale }}
+{% endfor %}
+
+# --- Hardware & Virtualization Environment ---
+env = XCURSOR_SIZE,24
+env = HYPRCURSOR_SIZE,24
+
+{% if is_virtual_machine | bool %}
+# Prevent invisible cursor and GPU acceleration crashes inside VMs
+env = WLR_NO_HARDWARE_CURSORS,1
+env = WLR_RENDERER_ALLOW_SOFTWARE,1
+{% endif %}
+
+{% if gpu_vendor == 'nvidia' %}
+env = LIBVA_DRIVER_NAME,nvidia
+env = XDG_SESSION_TYPE,wayland
+env = GBM_BACKEND,nvidia-drm
+env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+{% endif %}
+
+# --- Autostart Services ---
+exec-once = waybar
+{% if ansible_facts['os_family'] == 'Debian' %}
+exec-once = /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+{% else %}
+exec-once = systemctl --user start hyprpolkitagent
+{% endif %}
+
+# --- Appearance & Input ---
+general {
+    gaps_in = 5
+    gaps_out = 10
+    border_size = 2
+    col.active_border = rgba(89b4faee) rgba(cba6f7ee) 45deg
+    col.inactive_border = rgba(45475aaa)
+    layout = dwindle
+}
+
+decoration {
+    rounding = 8
+}
+
+input {
+    kb_layout = us
+    follow_mouse = 1
+}
+
+# --- Keybindings ---
+$mainMod = SUPER
+$terminal = kitty
+$menu = wofi --show drun
+
+bind = $mainMod, Return, exec, $terminal
+bind = $mainMod, D, exec, $menu
+bind = $mainMod, Q, killactive,
+bind = $mainMod, M, exit,
+bind = $mainMod, F, fullscreen,
+bind = $mainMod, V, togglefloating,
+
+# Focus movement
+bind = $mainMod, left, movefocus, l
+bind = $mainMod, right, movefocus, r
+bind = $mainMod, up, movefocus, u
+bind = $mainMod, down, movefocus, d
+
+# Workspaces
+bind = $mainMod, 1, workspace, 1
+bind = $mainMod, 2, workspace, 2
+bind = $mainMod, 3, workspace, 3
+bind = $mainMod, 4, workspace, 4

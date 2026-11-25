@@ -1,0 +1,12 @@
+---
+dev_tools:
+  docker: true
+  neovim: true
+  vscode: true
+  python_uv: true
+  rust_toolchain: false
+
+pkg_docker_engine: docker
+pkg_docker_compose: docker-compose
+docker_service_name: docker
+ci_headless_mode: false

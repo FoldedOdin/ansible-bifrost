@@ -1,0 +1,5 @@
+---
+enable_fedora_copr: false
+fedora_copr_repos: []
+extra_packages: []
+ci_headless_mode: false

@@ -1,0 +1,17 @@
+---
+is_virtual_machine: false
+gpu_vendor: "amd"
+ci_headless_mode: false
+
+monitors:
+  - output: ""
+    resolution: "preferred"
+    position: "auto"
+    scale: "1"
+    primary: true
+
+terminal_font: "JetBrainsMono Nerd Font"
+terminal_font_size: 11.0
+
+git_user_name: "Developer"
+git_user_email: "dev@example.com"

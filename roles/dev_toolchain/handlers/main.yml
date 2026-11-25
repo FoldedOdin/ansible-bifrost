@@ -1,0 +1,6 @@
+---
+- name: Restart docker
+  ansible.builtin.systemd:
+    name: "{{ docker_service_name }}"
+    state: restarted
+  when: not (ci_headless_mode | bool)

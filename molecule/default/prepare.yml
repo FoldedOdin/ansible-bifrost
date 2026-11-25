@@ -1,0 +1,22 @@
+---
+- name: Prepare container environment
+  hosts: workstations
+  become: true
+  tasks:
+    - name: Update pacman package database (Arch Linux)
+      community.general.pacman:
+        update_cache: true
+      when: ansible_facts['os_family'] == "Archlinux"
+
+    - name: Ensure archive utilities are installed for binary installers
+      ansible.builtin.package:
+        name:
+          - tar
+          - gzip
+        state: present
+
+    - name: Create mock workstation user
+      ansible.builtin.user:
+        name: testuser
+        shell: /bin/bash
+        create_home: true

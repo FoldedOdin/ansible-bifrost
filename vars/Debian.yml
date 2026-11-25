@@ -1,0 +1,24 @@
+---
+# Core Wayland & Desktop Stack
+pkg_hyprland: hyprland
+pkg_waybar_or_bar: waybar
+pkg_terminal: kitty
+pkg_launcher: wofi
+pkg_polkit_agent: policykit-1-gnome
+
+# Modern CLI & Dev Utilities
+pkg_fd: fd-find
+pkg_ripgrep: ripgrep
+pkg_bat: bat
+pkg_eza: eza
+pkg_btop: btop
+pkg_neovim: neovim
+pkg_wget: wget
+# Container & Build Tooling
+pkg_docker_engine: docker.io
+pkg_docker_compose: docker-compose-v2
+pkg_build_tools: build-essential
+
+# Service & Repo Metadata
+docker_service_name: docker
+enable_fedora_copr: false

@@ -1,0 +1,109 @@
+---
+- name: Resolve workstation user home directory
+  ansible.builtin.user:
+    name: "{{ workstation_user }}"
+    state: present
+  register: dev_user_info
+
+# --- Docker Engine & Compose ---
+- name: Install Docker Engine and Compose packages
+  ansible.builtin.package:
+    name:
+      - "{{ pkg_docker_engine }}"
+      - "{{ pkg_docker_compose }}"
+    state: present
+  when: dev_tools.docker | default(true) | bool
+
+- name: Ensure docker group exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+  when: dev_tools.docker | default(true) | bool
+
+- name: Add workstation user to docker group
+  ansible.builtin.user:
+    name: "{{ workstation_user }}"
+    groups: docker
+    append: true
+  when: dev_tools.docker | default(true) | bool
+
+- name: Ensure /etc/docker configuration directory exists
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when: dev_tools.docker | default(true) | bool
+
+- name: Configure Docker daemon with log rotation
+  ansible.builtin.copy:
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {{
+        {
+          "log-driver": "json-file",
+          "log-opts": {
+            "max-size": "10m",
+            "max-file": "3"
+          }
+        } | to_nice_json
+      }}
+  notify: Restart docker
+  when: dev_tools.docker | default(true) | bool
+
+- name: Enable and start Docker daemon
+  ansible.builtin.systemd:
+    name: "{{ docker_service_name }}"
+    enabled: true
+    state: "{{ 'stopped' if (ci_headless_mode | bool) else 'started' }}"
+  when: dev_tools.docker | default(true) | bool
+
+# --- Python uv Package Manager ---
+- name: Install uv Python package manager for workstation user
+  ansible.builtin.shell:
+    cmd: curl -LsSf https://astral.sh/uv/install.sh | sh
+  args:
+    creates: "{{ dev_user_info.home }}/.local/bin/uv"
+  become: true
+  become_user: "{{ workstation_user }}"
+  when: dev_tools.python_uv | default(true) | bool
+
+# --- Optional Rust Toolchain ---
+- name: Install Rust toolchain via rustup
+  ansible.builtin.shell:
+    cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+  args:
+    creates: "{{ dev_user_info.home }}/.cargo/bin/rustc"
+  become: true
+  become_user: "{{ workstation_user }}"
+  when: dev_tools.rust_toolchain | default(false) | bool
+
+# --- Cross-Distro VS Code via Flatpak ---
+- name: Ensure Flatpak is installed for GUI developer apps
+  ansible.builtin.package:
+    name: flatpak
+    state: present
+  when:
+    - dev_tools.vscode | default(true) | bool
+    - not (ci_headless_mode | bool)
+
+- name: Configure Flathub remote
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+  when:
+    - dev_tools.vscode | default(true) | bool
+    - not (ci_headless_mode | bool)
+
+- name: Install VS Code via Flatpak
+  community.general.flatpak:
+    name: com.visualstudio.code
+    state: present
+  when:
+    - dev_tools.vscode | default(true) | bool
+    - not (ci_headless_mode | bool)

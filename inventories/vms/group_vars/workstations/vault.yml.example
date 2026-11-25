@@ -1,0 +1,3 @@
+---
+vault_become_pass: "changeme"
+vault_git_email: "you@example.com"
