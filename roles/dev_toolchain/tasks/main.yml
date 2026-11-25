@@ -63,24 +63,56 @@
   when: dev_tools.docker | default(true) | bool
 
 # --- Python uv Package Manager ---
+- name: Check if uv is already installed
+  ansible.builtin.stat:
+    path: "{{ dev_user_info.home }}/.local/bin/uv"
+  register: uv_binary
+  when: dev_tools.python_uv | default(true) | bool
+
+- name: Download uv installer script
+  ansible.builtin.get_url:
+    url: https://astral.sh/uv/install.sh
+    dest: /tmp/uv-install.sh
+    mode: "0755"
+  when:
+    - dev_tools.python_uv | default(true) | bool
+    - not uv_binary.stat.exists
+
 - name: Install uv Python package manager for workstation user
-  ansible.builtin.shell:
-    cmd: curl -LsSf https://astral.sh/uv/install.sh | sh
-  args:
+  ansible.builtin.command:
+    cmd: /bin/sh /tmp/uv-install.sh
     creates: "{{ dev_user_info.home }}/.local/bin/uv"
   become: true
   become_user: "{{ workstation_user }}"
-  when: dev_tools.python_uv | default(true) | bool
+  when:
+    - dev_tools.python_uv | default(true) | bool
+    - not uv_binary.stat.exists
 
 # --- Optional Rust Toolchain ---
+- name: Check if Rust toolchain is already installed
+  ansible.builtin.stat:
+    path: "{{ dev_user_info.home }}/.cargo/bin/rustc"
+  register: rustc_binary
+  when: dev_tools.rust_toolchain | default(false) | bool
+
+- name: Download rustup installer script
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: "0755"
+  when:
+    - dev_tools.rust_toolchain | default(false) | bool
+    - not rustc_binary.stat.exists
+
 - name: Install Rust toolchain via rustup
-  ansible.builtin.shell:
-    cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-  args:
+  ansible.builtin.command:
+    cmd: /bin/sh /tmp/rustup-init.sh -y --no-modify-path
     creates: "{{ dev_user_info.home }}/.cargo/bin/rustc"
   become: true
   become_user: "{{ workstation_user }}"
-  when: dev_tools.rust_toolchain | default(false) | bool
+  when:
+    - dev_tools.rust_toolchain | default(false) | bool
+    - not rustc_binary.stat.exists
 
 # --- Cross-Distro VS Code via Flatpak ---
 - name: Ensure Flatpak is installed for GUI developer apps
