@@ -46,10 +46,13 @@ jobs:
         include:
           - distro: fedora
             image: geerlingguy/docker-fedora41-ansible:latest
+            command: ""
           - distro: ubuntu
             image: geerlingguy/docker-ubuntu2404-ansible:latest
+            command: ""
           - distro: archlinux
-            image: geerlingguy/docker-archlinux-ansible:latest
+            image: archlinux:latest
+            command: /usr/lib/systemd/systemd
 
     steps:
       - name: Checkout repository
@@ -69,6 +72,7 @@ jobs:
       - name: Run Molecule full test lifecycle
         env:
           MOLECULE_DISTRO_IMAGE: ${{ matrix.image }}
+          MOLECULE_DOCKER_COMMAND: ${{ matrix.command }}
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
         run: molecule test

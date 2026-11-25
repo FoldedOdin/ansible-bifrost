@@ -21,6 +21,6 @@ pkg_build_tools: "@development-tools"
 
 # Service & Repo Metadata
 docker_service_name: docker
-enable_fedora_copr: true
+enable_fedora_copr: "{{ (ansible_facts['distribution_major_version'] | int) >= 45 }}"
 fedora_copr_repos:
   - sdegler/hyprland

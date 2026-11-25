@@ -15,7 +15,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
-    command: ""
+    command: "${MOLECULE_DOCKER_COMMAND:-}"
     groups:
       - workstations
 

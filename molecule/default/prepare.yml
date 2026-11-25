@@ -1,4 +1,15 @@
 ---
+- name: Bootstrap Python on minimal container images
+  hosts: workstations
+  gather_facts: false
+  tasks:
+    - name: Install Python and sudo on Arch Linux if missing
+      ansible.builtin.raw: |
+        if command -v pacman >/dev/null 2>&1 && ! command -v python3 >/dev/null 2>&1; then
+          pacman -Sy --noconfirm python sudo
+        fi
+      changed_when: false
+
 - name: Prepare container environment
   hosts: workstations
   become: true
