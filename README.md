@@ -1,6 +1,6 @@
 # ansible-bifrost
 
-[![Cross-Distro Ansible CI](https://github.com/FoldedOdin/ansible-linux-workstation/actions/workflows/ci.yml/badge.svg)](https://github.com/FoldedOdin/ansible-linux-workstation/actions/workflows/ci.yml)
+[![Cross-Distro Ansible CI](https://github.com/FoldedOdin/ansible-bifrost/actions/workflows/ci.yml/badge.svg)](https://github.com/FoldedOdin/ansible-bifrost/actions/workflows/ci.yml)
 ![Ansible](https://img.shields.io/badge/Ansible-2.16%2B-EE0000?logo=ansible&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
