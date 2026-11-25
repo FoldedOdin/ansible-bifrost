@@ -1,3 +1,4 @@
+---
 name: Cross-Distro Ansible CI
 
 on:
